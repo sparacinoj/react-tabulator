@@ -1,5 +1,7 @@
 import * as Es6Promise from 'es6-promise' // without this, 'yarn build' will complain about Promise.
 import { render } from 'react-dom';
+import { reactFormatter18, reactVersion } from "./Utils18";
+import { syncRender18 } from "./ConfigUtils18";
 
 // .prettierignore    (to keep relevant props together)
 const NOOPS = () => {};
@@ -109,12 +111,18 @@ export interface IProps {
   downloadReady?: any;
   downloadComplete?: any;
   selectableCheck?: any;
-  
+
   // NOTE: you can directly pass *any* tabulator options via this. (see README)
   options?: any; // Tabulator options object
 }
 
 function syncRender(comp: any, el: any): any {
+
+  const [_, versionMaj] = reactVersion();
+  if (versionMaj >= 18) {
+    return syncRender18(comp, el)
+  }
+
   return new Es6Promise.Promise(function(resolve, reject) {
     render(comp, el, () => {
       resolve(el)
@@ -149,7 +157,7 @@ export const propsToOptions = async (props: any) => {
     'movableRowsSendingStart','movableRowsSent','movableRowsSentFailed','movableRowsSendingStop','movableRowsReceivingStart','movableRowsReceived','movableRowsReceivedFailed','movableRowsReceivingStop',
     'validationFailed','clipboardCopied','clipboardPasted','clipboardPasteError',
     'downloadReady','downloadComplete']; // don't add "selectableCheck" here, it will break "rowSelectionChanged"
-  
+
   for (const callbackName of callbackNames) {
     if (typeof props[callbackName] !== 'undefined') {
       output[callbackName] = props[callbackName] || NOOPS

@@ -1,5 +1,7 @@
 import * as React from 'react';
 import { render } from 'react-dom';
+import { reactVersion } from "../Utils18";
+import MultiValueFormatter18 from "./MultiValueFormatter18";
 
 const createCellEl = () => {
   const el = document.createElement('div');
@@ -11,6 +13,11 @@ const createCellEl = () => {
 // default style: comma separated plain text
 // other styles: PILL
 export default function(cell: any, formatterParams: any, onRendered: (fn: any) => void) {
+  const [_, versionMaj] = reactVersion();
+  if (versionMaj >= 18) {
+    return MultiValueFormatter18(cell, formatterParams, onRendered);
+  }
+
   const style = formatterParams.style || ''; // comma separated plain text
 
   const arr = cell.getValue() || [];
